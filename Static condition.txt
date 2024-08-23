@@ -1,0 +1,149 @@
+import math
+
+#Inputing required parameters
+pi= float((input("Enter angle of internal friction : ")))
+Vb = float((input("Enter Density of backfill : ")))
+L = float((input("Enter Reinforcement length of wall : ")))
+H = float((input("Enter Height of Retaining wall : ")))
+Qd = float((input("Enter Dead load due to surcharge : ")))
+sbc = float((input("Enter Safe bearing capacity of soil : ")))
+mue = 0.9*(math.tan(math.radians(pi)))
+teta = 90-((45)+(pi/2))
+Cfg = 1
+Ci = 0.85
+alpa = 0.8
+ka = (1 - math.sin(math.radians(pi)))/(1 + math.sin(math.radians(pi)))
+print("Coefficient of active earth pressure is", ka)
+print("-------------------------------------------------------------------------------------")
+print("DESIGN OF RE RETAINING WALL : STATIC CONDITION")
+print("-------------------------------------------------------------------------------------")
+
+#Factor of safety agaisnt Sliding
+print("EXTERNAL STABILITY CHECKS")
+print("-------------------------------------------------------------------------------------")
+Pv1 = Vb*H*L
+Pv2 = Qd*L
+Rf1 = Pv1+Pv2
+Rh = ((ka*Qd*H)+(0.5*ka*Vb*H*H))
+Fos1 = (mue*Rf1)/Rh
+print("Factor of safety against sliding is", Fos1)
+if Fos1>1.5:
+    print("Fos>1.5, Hence Safe against sliding")
+else :
+    print("Not Safe against sliding")
+print("-------------------------------------------------------------------------------------")
+
+#Factor of safety against Overturning
+Mr = (Pv1*(L/2)+Pv2*(L/2))
+Mo = ((ka*Qd*0.5*H*H)+(0.5*ka*Vb*H*H*H/3))
+Fos2 = Mr/Mo
+print("Factor of safety against Overturning is", Fos2)
+if Fos2>2:
+    print("Fos>2, Hence Safe against overturning")
+else :
+    print("Not Safe against overturning")
+print("-------------------------------------------------------------------------------------")
+
+#Eccentricity
+e = (L/2)-((Mr-Mo)/Rf1)
+print("Eccentricity is", e)
+if e<=(L/6):
+    print("e<L/6, Hence Safe against eccentricity")
+else :
+    print("Not safe against eccentricity")
+print("-------------------------------------------------------------------------------------")
+
+#Bearing Pressure
+Qb = Rf1/(L-2*e)
+print("Bearing Pressure is", Qb)
+if Qb<sbc:
+    print("Qb<sbc, Hence Safe in Bearing")
+else :
+    print("Not safe against bearing")
+print("-------------------------------------------------------------------------------------")  
+
+#Internal Stability checks
+
+if Fos1>1.5 and Fos2>2 and  e<=(L/6) and  Qb<sbc:
+    print("INTERNAL STABILITY CHECKS")
+    print("-------------------------------------------------------------------------------------")
+#Factor of Safety against Rupture
+    print("FACTOR OF SAFETY AGAINST RUPTURE")
+    print("-------------------------------------------------------------------------------------")
+    
+    print("%-12s %-12s %-15s %-12s %-20s %-25s" %("Height (h)","Spacing(Sv)","Vertical Stress(V)","Tension(T)","Design Strength(Td)","FOS"))
+    print("-------------------------------------------------------------------------------------") 
+    h = 0.25
+    while h < H-0.25 :
+        if h == 0.25 :
+            Sv = 0.625
+        else :
+            Sv = 0.75
+        V = (Vb*h)+Qd
+        T = ka*V*Sv
+        Td = 20
+        Fos3 = Td/T
+        if Fos3>1.5 :
+            Td = 20
+        else :
+            Td = Td+20
+            Fos3 = Td/T
+        if Fos3<1.5 :
+            Td = Td+20
+            Fos3 = Td/T
+            if Fos3<1.5 :
+                Td = Td+20
+                Fos3 = Td/T
+                if Fos3<1.5 :
+                    Td = Td+20
+                    Fos3 = Td/T
+                    if Fos3<1.5 :
+                        Td = Td+20
+                        Fos3 = Td/T
+                        if Fos3<1.5 :
+                            Td = Td+20
+                            Fos3 = Td/T
+                            if Fos3<1.5 :
+                                Td = Td+20
+                                Fos3 = Td/T
+                                if Fos3<1.5 :
+                                    Td = Td+20
+                                    Fos3 = Td/T
+                                    if Fos3<1.5 :
+                                        Td = Td+20
+                                        Fos3 = Td/T
+            
+        print("%-15s %-15s %-15s %-15s %-14s %-15s" %('%.2f'%h,'%.3f'%Sv,'%.2f'%V,'%.2f'%T,'%.f'%Td,'%.2f'%Fos3))
+        h = h+0.75
+    print("-------------------------------------------------------------------------------------")
+    
+#Factor of Safety against Pullout Resistance
+    print("FACTOR OF SAFETY AGAINST PULLOUT RESISTANCE")
+    print("-------------------------------------------------------------------------------------")
+
+    print("%-8s %-10s %-8s %-6s %-20s %-20s %-20s" %("hi","Laj","Lej","hj","Vertical stress(Vj)","Pullout(P)","FOS"))
+    print("-------------------------------------------------------------------------------------")
+    hi = H-0.25
+    hj = 0.25
+    h = 0.25 
+    while hi>=0.375 and h < H-0.25 :
+        Laj = math.tan(math.radians(teta))*hi
+        Lej = L-Laj
+        Vj = (hj*Vb)+Qd
+        P = 2*Lej*Cfg*Vj*Ci*alpa*math.tan(math.radians(pi))
+        if h == 0.25 :
+            Sv = 0.625
+        else :
+            Sv = 0.75
+        V = (Vb*h)+Qd
+        T = ka*V*Sv
+        Fos4 = P/T
+        print("%-8s %-10s %-8s %-13s %-16s %-16s %-20s" %('%.3f'%hi,'%.3f'%Laj,'%.3f'%Lej,'%.2f'%hj,'%.2f'%Vj,'%.2f'%P,'%.2f'%Fos4))
+        hi = hi-0.75
+        hj = hj+0.75
+        h = h+0.75
+    print("-------------------------------------------------------------------------------------")
+    print("Hence safe against Rupture & Pullout Resistance")
+    print("-------------------------------------------------------------------------------------")
+else :
+    print("Hence not safe, increase length of reinforcement")
